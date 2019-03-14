@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>My Contact Manager</title>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <script type="text/javascript" src="/javascripts/jquery.js"></script>
+    <script type="text/javascript" src="/javascripts/handlebars.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.3.4/babel.min.js"></script>
+    <script type="text/babel" src="/javascripts/app.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Contact Manager</h1>
+      <h2>Using jQuery, Handlebars and ES6</h2>
+    </header>
+    <main>
+      <div id="home_container">
+        <div id="search_container">
+          <a class="add_contact button" href="#">Add Contact</a>
+          <input id="search_bar" type="text" name="search_bar" placeholder="Search" />
+        </div>
+        <div id="contacts_container">
+        </div>
+        <div id="no_contacts">
+          <h1>There is no contacts.</h1>
+          <a class="add_contact button" href="#">Add Contact</a>
+        </div>
+      </div>
+    </main>
+    <footer>
+      <p>Developed by <a href="#">Fernanda Franco</a>.</p>
+    </footer>
+    <script id="filter_message_template" type="text/x-handlebars-template">
+      <div id="filter_message">
+          <p>
+            Showing only contacts tagged as "{{tag}}".
+            <a id="unfilter" href="#">Remove filter</a>
+          </p>
+        </div>
+    </script>
+    <script id="form_template" type="text/x-handlebars-template">
+      <form data-id="{{id}}" id="{{purpose}}_contact" method="" action="">
+        <h1>{{purpose}} Contact</h1>
+        <fieldset>
+          <dl>
+            <dt>
+              <label for="full_name">Full name:</label>
+            </dt>
+            <dd>
+              <input type="text" id="full_name" name="full_name" value="{{full_name}}" />
+            </dd>
+          </dl>
+          <dl>
+            <dt>
+              <label for="email">Email address:</label>
+            </dt>
+            <dd>
+              <input type="email" id="email" name="email" value="{{email}}" />
+            </dd>
+          </dl>
+          <dl>
+            <dt>
+              <label for="phone_number">Telephone number:</label>
+            </dt>
+            <dd>
+              <input type="text" id="phone_number" name="phone_number" value="{{phone_number}}" />
+            </dd>
+          </dl>
+          <dl>
+            <dt>
+              <label for="tags">Tags:</label>
+            </dt>
+            <dd>
+              <input type="text" id="tags" name="tags" value="{{tags}}" />
+            </dd>
+          </dl>
+          <input class="button" type="submit" value="Submit" />
+          <a class="cancel button" href="#">Cancel</a>
+        </fieldset>
+      </form>
+    </script>
+    <script id="contacts_template" type="text/x-handlebars-template">
+      {{#each contacts}}
+        {{> contact}}
+      {{/each}}
+    </script>
+    <script id="contact_template" type="text/x-handlebars-template">
+      <div data-id="{{id}}" class="contact">
+          <h1>{{full_name}}</h1>
+          <dl>
+            <dt>Phone Number:</dt>
+            <dd>{{phone_number}}</dd>
+          </dl>
+          <dl>
+            <dt>Email:</dt>
+            <dd>{{email}}</dd>
+          </dl>
+          <dl>
+            <dt>Tags:</dt>
+            <dd>
+              {{#each tags}}
+                <a class="tag" href="#" data-tag="{{this}}">{{this}}</a>
+              {{/each}}
+            </dd>
+          </dl>
+          <a class="edit button" href="/api/contacts/{{id}}">Edit</a>
+          <a class="delete button" href="/api/contacts/{{id}}">Delete</a>
+        </div>
+    </script>
+  </body>
+</html>
