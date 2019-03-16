@@ -1,10 +1,14 @@
-const App = {
+const ContactManager = {
   compileTemplates() {
     this.formTemplate = Handlebars.compile($('#form_template').html());
     this.contactTemplate = Handlebars.compile($('#contact_template').html());
     Handlebars.registerPartial('contact', $('#contact_template').html());
     this.contactsTemplate = Handlebars.compile($('#contacts_template').html());
     this.filterMessageTemplate = Handlebars.compile($('#filter_message_template').html());
+    $('#form_template').remove();
+    $('#contact_template').remove();
+    $('#contacts_template').remove();
+    $('#filter_message_template').remove();
   },
   areValidInputs() {
     return true;
@@ -41,12 +45,12 @@ const App = {
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.responseType = 'json';
 
-    xhr.addEventListener('load', e => {
+    $(xhr).on('load', e => {
       if (xhr.status === 201) {
         const contact = xhr.response;
         contact.tags = contact.tags.split(',');
-        this.contacts.push(contact);
-        this.renderHomePage(this.contacts);
+        ContactList.list.push(contact);
+        this.renderHomePage(ContactList.list);
         this.handleClosingForm(e);
       }
     });
@@ -75,17 +79,17 @@ const App = {
     const json = this.createJSON(form);
     const xhr = new XMLHttpRequest();
     const id = $(form).attr('data-id');
-    const contact = this.contacts.filter(contact => { return contact.id === parseInt(id, 10) })[0];
+    const contact = ContactList.list.filter(contact => { return contact.id === parseInt(id, 10) })[0];
     xhr.open('PUT', '/api/contacts/' + id);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.responseType = 'json';
 
-    xhr.addEventListener('load', e => {
+    $(xhr).on('load', e => {
       if (xhr.status === 201) {
         const updatedContact = xhr.response;
         updatedContact.tags = updatedContact.tags.split(',');
-        this.contacts.splice(this.contacts.indexOf(contact), 1, updatedContact);
-        this.renderHomePage(this.contacts);
+        ContactList.list.splice(ContactList.list.indexOf(contact), 1, updatedContact);
+        this.renderHomePage(ContactList.list);
         this.handleClosingForm(e);
       }
     });
@@ -96,7 +100,7 @@ const App = {
     e.preventDefault();
     let url = $(e.currentTarget).attr('href').split('/');
     const id = parseInt(url[url.length - 1], 10);
-    const contact = this.contacts.filter(contact => { return contact.id === id })[0];
+    const contact = ContactList.list.filter(contact => { return contact.id === id })[0];
     contact.purpose = 'update';
 
     $('main').append(this.formTemplate(contact));
@@ -108,12 +112,12 @@ const App = {
     const xhr = new XMLHttpRequest();
     xhr.open('DELETE', url);
 
-    xhr.addEventListener('load', e => {
+    $(xhr).on('load', e => {
       if (xhr.status === 204) {
         url = url.split('/');
         const id = parseInt(url[url.length -1], 10);
-        this.contacts = this.contacts.filter(contact => { return contact.id !== id });
-        this.renderHomePage(this.contacts);
+        ContactList.list = ContactList.list.filter(contact => { return contact.id !== id });
+        this.renderHomePage(ContactList.list);
       }
     });
 
@@ -128,7 +132,7 @@ const App = {
     }
   },
   filterContacts(tag) {
-    const contacts = this.contacts.filter(contact => {
+    const contacts = ContactList.list.filter(contact => {
       return contact.tags.indexOf(tag) > -1;
     });
 
@@ -146,12 +150,12 @@ const App = {
   handleUnfiltering(e) {
     e.preventDefault();
     $(e.currentTarget).closest('#filter_message').remove();
-    this.renderHomePage(this.contacts);
+    this.renderHomePage(ContactList.list);
   },
   handleSearching(e) {
     const input = e.currentTarget.value;
 
-    const contacts = this.contacts.filter(contact => {
+    const contacts = ContactList.list.filter(contact => {
       return contact.full_name.toLowerCase().includes(input.toLowerCase());
     });
 
@@ -173,14 +177,11 @@ const App = {
     xhr.open('GET', '/api/contacts');
     xhr.responseType = 'json';
 
-    xhr.addEventListener('load', e => {
+    $(xhr).on('load', e => {
       if (xhr.status === 200) {
-        this.contacts = xhr.response;
-        this.contacts.forEach(contact => {
-          contact.tags = contact.tags.split(',');
-        });
+        ContactList.createList(xhr.response);
 
-        this.renderHomePage(this.contacts);
+        this.renderHomePage(ContactList.list);
       }
     });
 
@@ -204,4 +205,17 @@ const App = {
   },
 };
 
-$(App.init.bind(App));
+const ContactList = {
+  list: [],
+  createList(response) {
+    response.forEach(contact => {
+      contact.tags = contact.tags.split(',');
+    });
+
+    this.list = response;
+  },
+};
+
+const Contact = {};
+
+$(ContactManager.init.bind(ContactManager));
